@@ -18,15 +18,14 @@ namespace Buoi2.Controllers
             _dbContext = new ApplicationDbContext();
         }
 
-        [HttpPost]
-        public IHttpActionResult Follow(FollowingDto followingDto)
-        {
-            var userId = User.Identity.GetUserId();
-            if (_dbContext.Followings.Any(f => f.FollowedId == userId && f.FollowedId == followingDto.FolloweeId))
-                return BadRequest("Following already exists!");
+        //[HttpPost]
+        //public IHttpActionResult Follow(FollowingDto followingDto)
+        //{
+        //    var userId = User.Identity.GetUserId();
+        //    if (_dbContext.Followings.Any(f => f.FollowedId == userId && f.FollowedId == followingDto.FolloweeId))
+        //        return BadRequest("Following already exists!");
 
 
-
-        }
+        //}
     }
 }
