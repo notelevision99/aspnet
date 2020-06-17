@@ -3,6 +3,7 @@ using Buoi2.ViewModels;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -30,7 +31,7 @@ namespace Buoi2.Controllers
         [HttpPost]
         public ActionResult Create(CourseViewModel viewModel)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 viewModel.Categories = _dbContext.Category.ToList();
                 return View("Create", viewModel);
@@ -46,6 +47,51 @@ namespace Buoi2.Controllers
             _dbContext.Course.Add(course);
             _dbContext.SaveChanges();
             return RedirectToAction("Index", "Home");
+        }
+        [Authorize]
+        public ActionResult Attending()
+        {
+            var userId = User.Identity.GetUserId();
+            var courses = _dbContext.Attendances
+                .Where(a => a.AttendeeId == userId)
+                .Select(a => a.Course)
+                .Include(l => l.Lecturer)
+                .Include(l => l.Category)
+                .ToList();
+            var viewModel = new CoursesViewModel
+            {
+                UpcommingCourses = courses,
+
+            };
+            return View(viewModel);
+        }
+        [Authorize]
+        public ActionResult Mine()
+        {
+            var userId = User.Identity.GetUserId();
+            var courses = _dbContext.Course
+                .Where(a => a.LectureID == userId && a.DateTime > DateTime.Now)
+                .Include(l => l.Lecturer)
+                .Include(l => l.Category)
+                .ToList();
+
+            return View(courses);
+        }
+        [Authorize]
+        public ActionResult Edit(int id)
+        {
+            var userId = User.Identity.GetUserId();
+            var course = _dbContext.Course.Single(c => c.Id == id && c.LectureID == userId);
+            var viewModel = new CourseViewModel
+            {
+                Categories = _dbContext.Category.ToList(),
+                Date = course.DateTime.ToString("yyyy/M/dd"),
+                Time = course.DateTime.ToString("HH:mm"),
+                Category = course.CategoryId,
+                Place = course.Place,
+              
+            };
+            return View("Create", viewModel);
         }
     }
 }

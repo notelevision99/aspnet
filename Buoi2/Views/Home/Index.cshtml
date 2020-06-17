@@ -1,10 +1,10 @@
-﻿@model IEnumerable<Buoi2.Models.Course>
+﻿@model Buoi2.ViewModels.CoursesViewModel
 @{
     ViewBag.Title = "Index";
 }
 <div class="row">
     <ul class="course">
-        @foreach (var course in Model)
+        @foreach (var course in Model.UpcommingCourses)
         {
             <li>
                 <div class="date">
@@ -17,12 +17,19 @@
                 </div>
                 <div class="details">
                     <span class="lecturer">
-                        @course.Lecturer.Name
+                        @*@course.Lecturer.Name*@
+                        @if (User.Identity.IsAuthenticated == true)
+                        {
+                        <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LectureID">Follow</button>
+                        }
                     </span>
                     <span class="category">
                         @course.Category.Name
                     </span>
+                    @if(User.Identity.IsAuthenticated == true)
+                    { 
                     <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going?</button>
+                    }
                 </div>
             </li>
 
@@ -44,6 +51,16 @@
                     .fail(function() {
                         alert("Something failed!");
                     });
+                });
+                $("js-toggle-follow").click(function (e) {
+                    var button = $(e.target);
+                    $.post("/api/followings", { followeeId: button.attr("data-user-id") })
+                        .done(function () {
+                            button.next("Following");
+                        })
+                        .fail(function () {
+                            alert("Something faileds");
+                        });
                 });
             });
         </script>
