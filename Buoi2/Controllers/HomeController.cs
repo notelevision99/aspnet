@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
 using Buoi2.ViewModels;
+using Microsoft.AspNet.Identity;
 
 namespace Buoi2.Controllers
 {
@@ -18,10 +19,12 @@ namespace Buoi2.Controllers
         }
         public ActionResult Index()
         {
+            
             var upcomingCourses = _dbContext.Course
                 .Include(c=>c.Lecturer)
                 .Include(c => c.Category)
                 .Where(c => c.DateTime > DateTime.Now);
+
             var viewmodel = new CoursesViewModel
             {
                 UpcommingCourses = upcomingCourses

@@ -23,7 +23,8 @@ namespace Buoi2.Controllers
         {
             var viewmodel = new CourseViewModel
             {
-                Categories = _dbContext.Category.ToList()
+                Categories = _dbContext.Category.ToList(),
+                Heading = "Add Course"
             };
             return View(viewmodel);
         }
@@ -89,9 +90,32 @@ namespace Buoi2.Controllers
                 Time = course.DateTime.ToString("HH:mm"),
                 Category = course.CategoryId,
                 Place = course.Place,
+                Heading = "Edit Course",
+                Id = course.Id
               
             };
             return View("Create", viewModel);
         }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Update(CourseViewModel viewModel)
+        {
+            if(!ModelState.IsValid)
+            {
+                viewModel.Categories = _dbContext.Category.ToList();
+                return View("Create", viewModel);
+            }
+            var userId = User.Identity.GetUserId();
+            var course = _dbContext.Course.Single(c => c.Id == viewModel.Id && c.LectureID == userId);
+
+            course.Place = viewModel.Place;
+            course.DateTime = viewModel.GetDateTime();
+            course.CategoryId = viewModel.Category;
+
+            _dbContext.SaveChanges();
+            return RedirectToAction("Index", "Home");
+        }     
     }
 }

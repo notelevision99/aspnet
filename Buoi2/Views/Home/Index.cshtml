@@ -1,10 +1,21 @@
 ﻿@model Buoi2.ViewModels.CoursesViewModel
+@using Buoi2.Models;
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Web;
+@using System.Web.Mvc;
+@using System.Data.Entity;
+@using Buoi2.ViewModels;
+@using Microsoft.AspNet.Identity;
 @{
     ViewBag.Title = "Index";
 }
 <div class="row">
     <ul class="course">
-        @foreach (var course in Model.UpcommingCourses)
+    @foreach (var course in Model.UpcommingCourses)
+    {
+        if (course.IsCanceled == false)
         {
             <li>
                 <div class="date">
@@ -20,28 +31,45 @@
                         @*@course.Lecturer.Name*@
                         @if (User.Identity.IsAuthenticated == true)
                         {
-                        <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LectureID">Follow</button>
+                            <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LectureID">Follow</button>
                         }
                     </span>
                     <span class="category">
                         @course.Category.Name
                     </span>
-                    @if(User.Identity.IsAuthenticated == true)
-                    { 
-                    <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going?</button>
+                    @if (User.Identity.IsAuthenticated == true)
+                    {
+                        var user_id = @User.Identity.GetUserId();
+                        ApplicationDbContext _dbcontext = new ApplicationDbContext();
+                        bool isGoing = _dbcontext.Attendances.Any(a => a.CourseId == course.Id && a.AttendeeId == user_id);
+                        <div>
+                            @if (!isGoing)
+                            {
+                                <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going?</button>
+                            }
+                            else
+                            {
+                                <button data-course-id="@course.Id" class="btn btn-success btn-sm js-toggle-attendance">Going</button>
+                            }
+
+
+                        </div>
+
+
+
                     }
                 </div>
             </li>
-
         }
-    </ul>
+    }
+</ul>
     @section scripts
     {
         <script>
             $(document).ready(function() {
                 $(".js-toggle-attendance").click(function(e){
                     var button = $(e.target);
-                    $.post("/api/attendances", {courseId : button.attr("data-course-id") })
+                    $.post("api/attendances", { courseId: button.attr("data-course-id") })
                     .done(function(){
                         button
                         .removeClass("btn-default")

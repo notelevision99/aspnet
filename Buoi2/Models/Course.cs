@@ -22,6 +22,8 @@ namespace Buoi2.Models
         [Required]
         public byte CategoryId { get; set; }
 
+        public bool IsCanceled { get; set; }
+
        
     }
 }

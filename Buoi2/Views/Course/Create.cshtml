@@ -1,13 +1,14 @@
 ﻿@model Buoi2.ViewModels.CourseViewModel
 @{
-    ViewBag.Title = "Create";
+    
 }
 
-<h2>Create</h2>
+<h2>@Model.Heading</h2>
 
-@using (Html.BeginForm("Create", "Course",FormMethod.Post))
+@using (Html.BeginForm(Model.Action, "Course",FormMethod.Post))
 {
-
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
     <div class="form-group">
         @Html.LabelFor(m => m.Place)
         @Html.TextBoxFor(m => m.Place, new { @class = "form-control" })
